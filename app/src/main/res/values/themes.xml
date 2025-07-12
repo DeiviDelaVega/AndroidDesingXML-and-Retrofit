@@ -1,0 +1,9 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.PracticeLayout" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your light theme here. -->
+       <item name="colorOnSecondary">@color/blue</item>
+    </style>
+
+    <style name="Theme.PracticeLayout" parent="Base.Theme.PracticeLayout" />
+</resources>
