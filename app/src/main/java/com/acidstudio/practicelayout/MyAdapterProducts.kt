@@ -1,30 +1,21 @@
 package com.acidstudio.practicelayout
 
 import android.content.Intent
-import android.renderscript.ScriptGroup.Binding
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.acidstudio.model.Producto
+import com.acidstudio.net.ProductResponse
 import com.acidstudio.practicelayout.databinding.ItemProductBinding
+import com.bumptech.glide.Glide
 
-class MyAdapterProducts(private val producto:List<Producto>) : RecyclerView.Adapter<MyAdapterProducts.ViewHolder>(){
 
-    class ViewHolder(private val binding : ItemProductBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(producto : Producto) {
-            binding.imageView2.setImageResource(producto.image)
-            binding.textView10.text = producto.titulo
-            binding.textView11.text = producto.precio
+class MyAdapterProducts() : RecyclerView.Adapter<MyAdapterProducts.ViewHolder>(){
 
-            val cardViewClick = binding.CardViewProduct
+    private var products: MutableList<ProductResponse> = mutableListOf()
 
-            val context = binding.root.context
-
-            cardViewClick.setOnClickListener {
-                val intent = Intent(context, SettingsActivity::class.java)
-                context.startActivity(intent)
-            }
-        }
+    fun addProduct(product: ProductResponse) {
+        products.add(product)
+        notifyItemInserted(products.size - 1)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -36,10 +27,31 @@ class MyAdapterProducts(private val producto:List<Producto>) : RecyclerView.Adap
         return ViewHolder((binding))
     }
 
-    override fun getItemCount() = producto.size
+    override fun getItemCount() = products.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind((producto[position]))
+        holder.bind((products[position]))
+    }
+
+    class ViewHolder(private val binding: ItemProductBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(product: ProductResponse) {
+
+            val imageView = binding.imageView2
+
+            val context = binding.root.context
+
+            Glide.with(context).load(product.imagen).into(imageView)
+            binding.textView10.text = product.titulo
+            binding.textView11.text = product.precio.toString()
+
+            val cardViewClick = binding.CardViewProduct
+
+            cardViewClick.setOnClickListener {
+                val intent = Intent(context, SettingsActivity::class.java)
+                context.startActivity(intent)
+            }
+        }
     }
 
 

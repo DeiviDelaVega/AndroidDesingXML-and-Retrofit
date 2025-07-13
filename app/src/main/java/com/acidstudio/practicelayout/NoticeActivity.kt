@@ -1,23 +1,27 @@
 package com.acidstudio.practicelayout
 
-import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
-import android.renderscript.ScriptGroup.Binding
+import android.util.Log
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.acidstudio.model.Articulo
+import com.acidstudio.net.ApiServiceUser
+import com.acidstudio.net.ListUserResponse
 import com.acidstudio.practicelayout.databinding.ActivityNoticeBinding
-import com.google.android.material.floatingactionbutton.FloatingActionButton
+import retrofit2.Call
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.Callback
+import retrofit2.Response
 
 class NoticeActivity : AppCompatActivity() {
 
 
     private lateinit var Binding: ActivityNoticeBinding
+
+    private val adapter =  MyAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,24 +36,48 @@ class NoticeActivity : AppCompatActivity() {
         }
 
         InitRecycle()
+        retrofit()
     }
 
-    val articulos = listOf(
-        Articulo(R.drawable.retrato_hombre, "3h ago", "Monterrico Polo Aparts", "lorem1"),
-        Articulo(R.drawable.retrato_hombre, "4h ago", "Monterrico Polo Aparts2", "lorem2"),
-        Articulo(R.drawable.retrato_hombre, "6h ago", "Monterrico Polo Aparts3", "lorem3"),
-        Articulo(R.drawable.retrato_hombre, "5h ago", "Monterrico Polo Aparts4", "lorem4")
+    private fun retrofit() {
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://dummyjson.com/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ApiServiceUser::class.java)
 
-    )
+        retrofit.listUser().enqueue(object : Callback<ListUserResponse> {
+            override fun onResponse(
+                call: Call<ListUserResponse>,
+                response: Response<ListUserResponse>
+            ) {
+                if (response.isSuccessful) {
+                    val responseBody = response.body()
+                    Log.i("CHECK_RESPONSE", "onResponse: $responseBody")
+                    responseBody?.let { body ->
+                        val users = body.user
+
+                        users.forEach { user ->
+                            adapter.addUser(user)
+                        }
+                    }
+                } else {
+                    Log.i("CHECK_RESPONSE", "onFailure: ${response.errorBody()}")
+                }
+            }
+
+            override fun onFailure(call: Call<ListUserResponse>, t: Throwable) {
+                Log.i("CHECK_RESPONSE", "onFailure: ${t.message}")
+            }
+        }
+        )
+    }
 
     fun InitRecycle() {
-
-        val adapter = MyAdapter(articulos)
-        Binding.recyclerView.layoutManager = LinearLayoutManager(this) //Siempre se pone para reconocer que tipo de layout es
-        Binding.recyclerView.adapter = adapter
+        Binding.recyclerUser.layoutManager =
+            LinearLayoutManager(this)
+        Binding.recyclerUser.adapter = adapter
     }
-
-
 
 
 }

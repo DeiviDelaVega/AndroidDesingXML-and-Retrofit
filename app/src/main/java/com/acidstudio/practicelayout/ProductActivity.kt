@@ -19,9 +19,11 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 
-class ProductActivity : AppCompatActivity(){
+class ProductActivity : AppCompatActivity() {
 
-    private lateinit var Binding : ActivityProductBinding
+    private lateinit var Binding: ActivityProductBinding
+
+    private val adapter = MyAdapterProducts()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,7 +48,7 @@ class ProductActivity : AppCompatActivity(){
             .build()
             .create(ApiService::class.java)
 
-        retrofit.listProducts().enqueue(object : Callback<ListProductResponse>{
+        retrofit.listProducts().enqueue(object : Callback<ListProductResponse> {
             override fun onResponse(
                 call: Call<ListProductResponse>,
                 response: Response<ListProductResponse>,
@@ -56,8 +58,9 @@ class ProductActivity : AppCompatActivity(){
 
                     responseBody?.let { body ->
                         val products = body.products
-                        for (comment in products) {
-                            Log.i("CHECK_RESPONSE", "onResponse: ${comment.id} ${comment.titulo}")
+
+                        products.forEach { product ->
+                            adapter.addProduct(product)
                         }
                     }
                 } else {
@@ -74,32 +77,12 @@ class ProductActivity : AppCompatActivity(){
 
     }
 
-    val productos = listOf(
-        Producto(R.drawable.auricular_item, "Smartphone", "$600"),
-        Producto(R.drawable.celular_item, "Classi Watch", "$400"),
-        Producto(R.drawable.auricular_item, "Smartphone", "$300"),
-        Producto(R.drawable.celular_item, "Classi Watch", "$100"),
-        Producto(R.drawable.auricular_item, "Smartphone", "$200"),
-        Producto(R.drawable.celular_item, "Classi Watch", "$600"),
-        Producto(R.drawable.auricular_item, "Smartphone", "$600"),
-        Producto(R.drawable.celular_item, "Classi Watch", "$400"),
-        Producto(R.drawable.auricular_item, "Smartphone", "$300"),
-        Producto(R.drawable.celular_item, "Classi Watch", "$100"),
-        Producto(R.drawable.auricular_item, "Smartphone", "$200"),
-        Producto(R.drawable.celular_item, "Classi Watch", "$600"),
-        Producto(R.drawable.auricular_item, "Smartphone", "$600"),
-        Producto(R.drawable.celular_item, "Classi Watch", "$400"),
-        Producto(R.drawable.auricular_item, "Smartphone", "$300"),
-        Producto(R.drawable.celular_item, "Classi Watch", "$100"),
-        Producto(R.drawable.auricular_item, "Smartphone", "$200"),
-        Producto(R.drawable.celular_item, "Classi Watch", "$600")
-    )
 
     fun initRecycle() {
-
-        val adapter = MyAdapterProducts(productos)
-        Binding.recyclerProducts.layoutManager = GridLayoutManager(this, 2, GridLayoutManager.VERTICAL,false)
+        Binding.recyclerProducts.layoutManager =
+            GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false)
         Binding.recyclerProducts.adapter = adapter
+
     }
 
 }
